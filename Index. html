@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hindi Pro Designer | Create & Share</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tiro+Hindi&family=Rozha+One&family=Yantra+Roman&family=Poppins:wght@300;600&family=Kalam:wght@700&family=Kumar+One+Outline&family=Modak&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --accent: #a855f7; --bg: #0f172a; }
+        body { background-color: var(--bg); color: white; font-family: 'Poppins', sans-serif; overflow: hidden; }
+        .studio-gradient { background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); }
+        .control-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border-right: 1px solid rgba(255,255,255,0.1); }
+        canvas { border-radius: 8px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .font-card:hover { transform: translateY(-2px); transition: all 0.2s; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        /* Banner Ad Position */
+        #banner-ad { position: fixed; bottom: 0; left: 0; width: 100%; height: 50px; background-color: #000; text-align: center; line-height: 50px; z-index: 999; }
+    </style>
+
+    <!-- Google AdMob SDK -->
+    <script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" async></script>
+</head>
+<body class="h-screen flex flex-col">
+
+    <nav class="h-16 border-b border-white/10 flex items-center justify-between px-6 bg-slate-900/50">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center font-bold text-xl">H</div>
+            <span class="font-semibold tracking-tight text-lg">Hindi<span class="text-purple-400">Design</span> Pro</span>
+        </div>
+        <div class="flex gap-4">
+            <button id="saveHD" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition">
+                <span>Save HD</span>
+            </button>
+            <button onclick="alert('Shared to Community!')" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full text-sm transition">Share</button>
+        </div>
+    </nav>
+
+    <div class="flex-1 flex overflow-hidden">
+        <aside class="w-80 control-panel p-5 overflow-y-auto flex flex-col gap-6">
+            
+            <div>
+                <label class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Add Content</label>
+                <textarea id="textInput" placeholder="यहाँ टाइप करें..." class="w-full mt-2 bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm focus:ring-2 ring-purple-500 outline-none h-20"></textarea>
+                <button onclick="addText()" class="w-full mt-3 bg-white text-black py-2 rounded-xl font-bold hover:bg-purple-400 transition">Add New Text</button>
+            </div>
+
+            <div>
+                <label class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Canvas Background</label>
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                    <input type="file" id="bgUpload" hidden onchange="uploadBackground(event)">
+                    <button onclick="document.getElementById('bgUpload').click()" class="bg-slate-800 p-3 rounded-lg text-xs border border-dashed border-slate-600 hover:border-purple-500">Upload Image</button>
+                    <button onclick="setBackgroundColor('#ffffff')" class="bg-white text-black p-3 rounded-lg text-xs font-bold">White BG</button>
+                </div>
+            </div>
+
+            <div>
+                <label class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Typography Styles</label>
+                <div class="grid grid-cols-1 gap-2 mt-2 h-64 overflow-y-auto pr-2">
+                    <button onclick="changeFont('Tiro Hindi')" class="font-card bg-slate-800 p-3 rounded-lg text-left hover:bg-slate-700" style="font-family: 'Tiro Hindi'">Tiro Traditional</button>
+                    <button onclick="changeFont('Rozha One')" class="font-card bg-slate-800 p-3 rounded-lg text-left hover:bg-slate-700 text-xl" style="font-family: 'Rozha One'">राजोदव (Bold)</button>
+                    <button onclick="changeFont('Modak')" class="font-card bg-slate-800 p-3 rounded-lg text-left hover:bg-slate-700" style="font-family: 'Modak'">मोदक (Chunky)</button>
+                    <button onclick="changeFont('Kalam')" class="font-card bg-slate-800 p-3 rounded-lg text-left hover:bg-slate-700" style="font-family: 'Kalam'">कलम (Script)</button>
+                    <button onclick="changeFont('Kumar One Outline')" class="font-card bg-slate-800 p-3 rounded-lg text-left hover:bg-slate-700" style="font-family: 'Kumar One Outline'">Outline Style</button>
+                </div>
+            </div>
+
+            <div>
+                <label class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Text Color</label>
+                <div class="flex gap-2 mt-2">
+                    <input type="color" id="colorPicker" onchange="changeColor(this.value)" class="w-full h-10 rounded-lg bg-transparent cursor-pointer">
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 studio-gradient flex flex-col items-center justify-center p-10 relative">
+            <div id="canvas-container" class="relative">
+                <canvas id="mainCanvas"></canvas>
+            </div>
+            
+            <div class="absolute bottom-8 flex bg-slate-900/80 backdrop-blur px-6 py-3 rounded-full gap-6 border border-white/10 shadow-2xl">
+                <button onclick="deleteObject()" class="text-red-400 hover:text-red-300 text-sm font-bold">Delete</button>
+                <button onclick="bringForward()" class="text-white hover:text-purple-400 text-sm">Bring Forward</button>
+                <div class="w-px h-4 bg-white/20 self-center"></div>
+                <button onclick="canvas.clear(); initCanvas();" class="text-white/50 hover:text-white text-sm">Reset</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Banner Ad -->
+    <div id="banner-ad">
+        <ins class="adsbygoogle"
+            style="display:inline-block;width:320px;height:50px"
+            data-ad-client="ca-app-pub-9698100648606421"
+            data-ad-slot="4117505950"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+
+    <script>
+        let canvas;
+
+        // Initialize Pro Canvas Engine
+        window.onload = function() {
+            canvas = new fabric.Canvas('mainCanvas', {
+                width: 500,
+                height: 500,
+                backgroundColor: '#ffffff'
+            });
+            
+            // Initial Layer
+            addText("नमस्ते इंडिया");
+        };
+
+        function addText(customStr) {
+            const str = customStr || document.getElementById('textInput').value || 'नया शब्द';
+            const text = new fabric.IText(str, {
+                left: 100,
+                top: 100,
+                fontFamily: 'Tiro Hindi',
+                fill: '#333333',
+                fontSize: 50,
+                cornerColor: '#a855f7',
+                cornerSize: 10,
+                transparentCorners: false
+            });
+            canvas.add(text);
+            canvas.setActiveObject(text);
+        }
+
+        function changeFont(fontName) {
+            const active = canvas.getActiveObject();
+            if (active && active.type === 'i-text') {
+                active.set('fontFamily', fontName);
+                canvas.renderAll();
+            }
+        }
+
+        function changeColor(color) {
+            const active = canvas.getActiveObject();
+            if (active) {
+                active.set('fill', color);
+                canvas.renderAll();
+            }
+        }
+
+        function uploadBackground(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(f) {
+                fabric.Image.fromURL(f.target.result, function(img) {
+                    img.scaleToWidth(canvas.width);
+                    canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function setBackgroundColor(color) {
+            canvas.setBackgroundImage(null);
+            canvas.setBackgroundColor(color, canvas.renderAll.bind(canvas));
+        }
+
+        function deleteObject() {
+            const active = canvas.getActiveObject();
+            if (active) {
+                canvas.remove(active);
+                canvas.discardActiveObject();
+                canvas.renderAll();
+            }
+        }
+
+        function bringForward() {
+            const active = canvas.getActiveObject();
+            if (active) canvas.bringForward(active);
+        }
+
+        function downloadImage() {
+            const dataURL = canvas.toDataURL({
+                format: 'png',
+                quality: 1.0,
+                multiplier: 2
+            });
+            const link = document.createElement('a');
+            link.download = 'HindiDesignPro_Export.png';
+            link.href = dataURL;
+            link.click();
+            alert("High Quality Design Saved to Gallery!");
+            
+            // Show Interstitial Ad on Save
+            alert("Interstitial Ad would show here using AdMob Interstitial ID: ca-app-pub-9698100648606421/8249290250");
+        }
+    </script>
+</body>
+</html>
