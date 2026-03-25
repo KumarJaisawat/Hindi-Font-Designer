@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hindi Font Designer - Pro Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tiro+Hindi&family=Rozha+One&family=Poppins:wght@300;400;700&family=Kalam:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #0a0a0a; color: #e2e2e2; font-family: 'Poppins', sans-serif; overflow-x: hidden; }
+        .canvas-area { background-image: radial-gradient(#2d1b4d 1px, transparent 1px); background-size: 20px 20px; }
+        .purple-gradient { background: linear-gradient(135deg, #310055 0%, #000000 100%); }
+        .glass-panel { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .hindi-font-1 { font-family: 'Tiro Hindi', serif; }
+        .hindi-font-2 { font-family: 'Rozha One', serif; }
+        .hindi-font-3 { font-family: 'Kalam', cursive; }
+        .layer-selected { border: 2px dashed #9333ea; }
+        .ad-banner { height: 50px; background: #1a1a1a; border-top: 1px solid #333; }
+    </style>
+</head>
+<body>
+    <div id="app" class="flex flex-col h-screen">
+        <header class="p-4 purple-gradient flex justify-between items-center shadow-lg border-b border-purple-900">
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-300">
+                Hindi Font Designer
+            </h1>
+            <div class="flex gap-3">
+                <button @click="exportImage" class="bg-purple-600 hover:bg-purple-700 px-4 py-1 rounded-full text-sm font-semibold transition">Save HD</button>
+                <button @click="shareDesign" class="bg-gray-800 hover:bg-gray-700 px-4 py-1 rounded-full text-sm transition">Share</button>
+            </div>
+        </header>
+
+        <main class="flex-1 flex flex-col md:flex-row overflow-hidden">
+            
+            <aside class="w-full md:w-80 glass-panel p-4 overflow-y-auto order-2 md:order-1">
+                <section class="mb-6">
+                    <label class="text-xs uppercase text-gray-500 font-bold tracking-wider">Text Input</label>
+                    <div class="mt-2 flex items-center justify-between mb-2">
+                        <span class="text-sm">Transliteration (Eng → Hin)</span>
+                        <input type="checkbox" v-model="useTransliteration" class="accent-purple-500">
+                    </div>
+                    <textarea 
+                        v-model="currentText" 
+                        @input="handleTextInput"
+                        placeholder="Type here..." 
+                        class="w-full bg-black border border-gray-700 rounded-lg p-3 text-sm focus:border-purple-500 outline-none h-24"
+                    ></textarea>
+                    <button @click="addTextLayer" class="w-full mt-2 bg-purple-600 py-2 rounded-lg font-bold">+ Add Text to Canvas</button>
+                </section>
+
+                <section class="mb-6">
+                    <label class="text-xs uppercase text-gray-500 font-bold tracking-wider">Font Style ({{fonts.length}}+)</label>
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <button v-for="f in fonts" :key="f.name" 
+                            @click="applyFont(f.class)"
+                            :class="['p-2 rounded border text-center transition', f.class, activeLayer?.fontClass === f.class ? 'border-purple-500 bg-purple-900/30' : 'border-gray-800 bg-black']">
+                            {{f.name}}
+                        </button>
+                    </div>
+                </section>
+
+                <section class="mb-6">
+                    <label class="text-xs uppercase text-gray-500 font-bold tracking-wider">Effects</label>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <button @click="applyEffect('glow')" class="px-3 py-1 bg-blue-900/30 border border-blue-500 rounded-full text-xs">Glow</button>
+                        <button @click="applyEffect('shadow')" class="px-3 py-1 bg-gray-700 border border-gray-500 rounded-full text-xs">Shadow</button>
+                        <button @click="applyEffect('metallic')" class="px-3 py-1 bg-yellow-900/30 border border-yellow-500 rounded-full text-xs">Metallic</button>
+                    </div>
+                </section>
+            </aside>
+
+            <div class="flex-1 relative canvas-area flex items-center justify-center p-4 order-1 md:order-2">
+                <div id="capture-area" class="relative w-full max-w-lg aspect-square bg-white shadow-2xl overflow-hidden rounded-sm" 
+                    :style="{ backgroundImage: `url(${bgImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }">
+                    
+                    <div v-for="(layer, index) in layers" 
+                         :key="layer.id"
+                         @mousedown="selectLayer(index)"
+                         :class="['absolute cursor-move select-none p-2 whitespace-nowrap', layer.fontClass, index === activeIndex ? 'layer-selected' : '']"
+                         :style="{ 
+                            left: layer.x + 'px', 
+                            top: layer.y + 'px', 
+                            color: layer.color, 
+                            fontSize: layer.size + 'px',
+                            textShadow: layer.effect === 'glow' ? '0 0 10px rgba(147, 51, 234, 0.8)' : layer.effect === 'shadow' ? '4px 4px 4px rgba(0,0,0,0.5)' : 'none',
+                            transform: `rotate(${layer.rotation}deg)`
+                         }"
+                         @touchstart="selectLayer(index)"
+                         @mousemove="dragLayer"
+                         @touchmove="dragLayer">
+                        {{layer.content}}
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="ad-banner flex items-center justify-center text-[10px] text-gray-600">
+            SPONSORED: Unlock Premium Calligraphy Fonts - Watch a Video
+        </footer>
+    </div>
+
+    <script>
+        const { createApp, ref, reactive } = Vue;
+
+        createApp({
+            setup() {
+                const currentText = ref('');
+                const useTransliteration = ref(true);
+                const activeIndex = ref(null);
+                const bgImage = ref('https://images.unsplash.com/photo-1579546678183-a9c101ad90d9?auto=format&fit=crop&w=800&q=80');
+                
+                const fonts = [
+                    { name: 'Hindi Bold', class: 'hindi-font-1' },
+                    { name: 'Stylish', class: 'hindi-font-2' },
+                    { name: 'Handwriting', class: 'hindi-font-3' },
+                    { name: 'Modern', class: 'font-sans' }
+                ];
+
+                const layers = reactive([
+                    { id: 1, content: 'नमस्ते', x: 50, y: 50, size: 40, color: '#ffffff', fontClass: 'hindi-font-1', rotation: 0, effect: 'glow' }
+                ]);
+
+                const handleTextInput = () => {
+                    if (useTransliteration.value) {
+                        const map = { 'namaste': 'नमस्ते', 'shubh': 'शुभ', 'hindi': 'हिंदी' };
+                        const words = currentText.value.toLowerCase().split(' ');
+                        const converted = words.map(w => map[w] || w).join(' ');
+                        // Real transliteration logic can be added later
+                    }
+                };
+
+                const addTextLayer = () => {
+                    layers.push({
+                        id: Date.now(),
+                        content: currentText.value || 'नया टेक्स्ट',
+                        x: 100, y: 100, size: 30, color: '#ffffff',
+                        fontClass: 'hindi-font-1', rotation: 0
+                    });
+                };
+
+                const selectLayer = (index) => {
+                    activeIndex.value = index;
+                };
+
+                const dragLayer = (e) => {
+                    if (activeIndex.value === null) return;
+                    if (e.buttons !== 1 && e.type !== 'touchmove') return;
+
+                    const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+                    
+                    const layer = layers[activeIndex.value];
+                    layer.x += e.movementX || 0;
+                    layer.y += e.movementY || 0;
+                };
+
+                const applyFont = (cls) => {
+                    if (activeIndex.value !== null) layers[activeIndex.value].fontClass = cls;
+                };
+
+                const applyEffect = (eff) => {
+                    if (activeIndex.value !== null) layers[activeIndex.value].effect = eff;
+                };
+
+                const exportImage = () => {
+                    alert("Generating HD PNG... \nRewarded Ad showing to unlock HD export.");
+                };
+
+                const shareDesign = () => {
+                    alert("Opening Native Share Sheet...");
+                };
+
+                return {
+                    currentText, useTransliteration, layers, activeIndex, 
+                    fonts, bgImage, handleTextInput, addTextLayer, 
+                    selectLayer, dragLayer, applyFont, applyEffect,
+                    exportImage, shareDesign
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+      </html>
