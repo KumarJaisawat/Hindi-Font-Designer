@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hindi Font Designer</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Hindi&family=Rozha+One&family=Kalam&family=Modak&family=Baloo+2&family=Hind&family=Mukta&family=Rajdhani&family=Great+Vibes&family=Pacifico&family=Dancing+Script&display=swap" rel="stylesheet">
+
+<style>
+body{background:#0f172a;color:white;font-family:sans-serif}
+canvas{border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.5)}
+.sidebar{width:280px;background:#1e293b;padding:15px;overflow:auto}
+button{margin:3px;padding:5px 8px;border-radius:6px;background:#334155}
+button:hover{background:#a855f7}
+input,textarea{color:black}
+#banner-ad{position:fixed;bottom:0;width:100%;text-align:center}
+</style>
+</head>
+
+<body class="h-screen flex flex-col">
+
+<!-- Header -->
+<div class="p-3 flex justify-between bg-slate-900">
+<h1 class="font-bold text-lg">Hindi Font Designer</h1>
+<button onclick="downloadImage()" class="bg-purple-600 px-4 py-1 rounded">Save HD</button>
+</div>
+
+<div class="flex flex-1">
+
+<!-- Sidebar -->
+<div class="sidebar">
+
+<textarea id="text" placeholder="यहाँ लिखो..." class="w-full p-2 rounded mb-2"></textarea>
+<button onclick="addText()" class="w-full bg-white text-black">Add Text</button>
+
+<hr class="my-3">
+
+<input type="file" onchange="uploadBg(event)" class="w-full mb-2">
+
+<label>Text Color</label>
+<input type="color" onchange="changeColor(this.value)" class="w-full mb-2">
+
+<label>Background Color</label>
+<input type="color" onchange="bgColor(this.value)" class="w-full mb-3">
+
+<!-- Fonts -->
+<p class="font-bold">Hindi Fonts</p>
+<button onclick="font('Tiro Hindi')">Tiro</button>
+<button onclick="font('Rozha One')">Rozha</button>
+<button onclick="font('Kalam')">Kalam</button>
+<button onclick="font('Modak')">Modak</button>
+<button onclick="font('Baloo 2')">Baloo</button>
+<button onclick="font('Mukta')">Mukta</button>
+
+<p class="font-bold mt-3">English Calligraphy</p>
+<button onclick="font('Great Vibes')">Great Vibes</button>
+<button onclick="font('Pacifico')">Pacifico</button>
+<button onclick="font('Dancing Script')">Dancing</button>
+
+<hr class="my-3">
+
+<!-- Calligraphy Controls -->
+<p class="font-bold">Calligraphy Controls</p>
+
+<label>Spacing</label>
+<input type="range" min="0" max="50" oninput="setSpacing(this.value)" class="w-full">
+
+<label>Shadow</label>
+<input type="range" min="0" max="20" oninput="setShadow(this.value)" class="w-full">
+
+<label>Stroke</label>
+<input type="range" min="0" max="10" oninput="setStroke(this.value)" class="w-full">
+
+<label>Glow</label>
+<input type="range" min="0" max="30" oninput="setGlow(this.value)" class="w-full">
+
+</div>
+
+<!-- Canvas -->
+<div class="flex-1 flex items-center justify-center">
+<canvas id="c" width="500" height="500"></canvas>
+</div>
+
+</div>
+
+<!-- Banner Ad -->
+<div id="banner-ad">
+<ins class="adsbygoogle"
+data-ad-client="ca-app-pub-9698100648606421"
+data-ad-slot="4117505950"></ins>
+</div>
+
+<script>
+let canvas=new fabric.Canvas('c',{backgroundColor:"#fff"});
+
+function addText(){
+let t=new fabric.IText(document.getElementById('text').value||"नमस्ते",{
+left:100,top:100,fontSize:40
+});
+canvas.add(t);
+canvas.setActiveObject(t);
+}
+
+function font(f){
+let o=canvas.getActiveObject();
+if(o){o.set("fontFamily",f);canvas.renderAll();}
+}
+
+function changeColor(c){
+let o=canvas.getActiveObject();
+if(o){o.set("fill",c);canvas.renderAll();}
+}
+
+function bgColor(c){
+canvas.setBackgroundColor(c,canvas.renderAll.bind(canvas));
+}
+
+function uploadBg(e){
+let r=new FileReader();
+r.onload=f=>{
+fabric.Image.fromURL(f.target.result,img=>{
+img.scaleToWidth(canvas.width);
+canvas.setBackgroundImage(img,canvas.renderAll.bind(canvas));
+});
+}
+r.readAsDataURL(e.target.files[0]);
+}
+
+/* Calligraphy Controls */
+
+function setSpacing(v){
+let o=canvas.getActiveObject();
+if(o){o.set("charSpacing",v*10);canvas.renderAll();}
+}
+
+function setShadow(v){
+let o=canvas.getActiveObject();
+if(o){
+o.set("shadow",`rgba(0,0,0,0.5) ${v}px ${v}px ${v*2}px`);
+canvas.renderAll();
+}
+}
+
+function setStroke(v){
+let o=canvas.getActiveObject();
+if(o){
+o.set({stroke:"black",strokeWidth:v});
+canvas.renderAll();
+}
+}
+
+function setGlow(v){
+let o=canvas.getActiveObject();
+if(o){
+o.set("shadow",`rgba(255,255,255,0.8) 0px 0px ${v}px`);
+canvas.renderAll();
+}
+}
+
+/* Download */
+
+function downloadImage(){
+let a=document.createElement("a");
+a.href=canvas.toDataURL({format:"png",multiplier:2});
+a.download="HindiFontDesigner.png";
+a.click();
+
+alert("Interstitial Ad: ca-app-pub-9698100648606421/8249290250");
+}
+</script>
+
+</body>
+</html>
