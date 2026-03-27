@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hindi Font Designer PRO MAX</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- ⚠️ AdMob Script (Web में काम नहीं करेगा, सिर्फ placeholder) -->
+<script>
+console.log("AdMob IDs Loaded");
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari&family=Noto+Serif+Devanagari&family=Kalam&display=swap" rel="stylesheet">
+
+<style>
+body{margin:0;background:#0f172a;color:white;font-family:sans-serif;height:100vh;display:flex;flex-direction:column}
+#canvas{flex:1;background:white;position:relative;overflow:hidden}
+.active{outline:2px solid #a855f7}
+.toolbar{display:flex;gap:10px;padding:10px;background:#1f2937;flex-wrap:wrap}
+.ad-box{background:#111;color:#aaa;text-align:center;padding:10px;font-size:12px}
+</style>
+</head>
+
+<body>
+
+<!-- 🔝 TOP AD (Banner Placeholder) -->
+<div class="ad-box">
+Banner Ad ID: ca-app-pub-9698100648606421/4117505950
+</div>
+
+<div class="toolbar">
+<button onclick="addText()">➕ Text</button>
+
+<select id="font">
+<option value="'Noto Sans Devanagari'">Sans</option>
+<option value="'Noto Serif Devanagari'">Serif</option>
+<option value="'Kalam'">Handwriting</option>
+</select>
+
+<input type="color" id="color">
+<input type="range" id="size" min="20" max="120">
+
+<button onclick="gradient()">🌈 Gradient</button>
+<button onclick="randomBg()">🖼️ BG</button>
+
+<input type="file" id="bgUpload">
+<input type="file" id="sticker">
+
+<button onclick="showInterstitial()">📺 Ad</button>
+<button onclick="showReward()">🎁 Reward</button>
+
+<button onclick="exportImg()">⬇ Export</button>
+</div>
+
+<div id="canvas"></div>
+
+<!-- 🔻 BOTTOM AD -->
+<div class="ad-box">
+Banner Ad ID: ca-app-pub-9698100648606421/4117505950
+</div>
+
+<script>
+
+// 🔥 AdMob IDs (Saved for App Use)
+const ADMOB = {
+  banner: "ca-app-pub-9698100648606421/4117505950",
+  interstitial: "ca-app-pub-9698100648606421/8249290250",
+  rewarded: "ca-app-pub-9698100648606421/2532961546"
+};
+
+// DEMO BUTTONS (App में काम करेंगे)
+function showInterstitial(){
+ alert("Interstitial Ad ID: " + ADMOB.interstitial);
+}
+
+function showReward(){
+ alert("Rewarded Ad ID: " + ADMOB.rewarded);
+}
+
+// AUTO HINDI
+const map={a:"ा",i:"ि",u:"ु",e:"े",o:"ो",k:"क",g:"ग",n:"न",m:"म",r:"र",s:"स",h:"ह"};
+
+function toHindi(t){
+ let r="";
+ for(let c of t){ r+=map[c]||c; }
+ return r;
+}
+
+let canvas=document.getElementById("canvas");
+let active=null;
+
+function addText(){
+ let el=document.createElement("div");
+ el.innerText="namaste";
+ el.contentEditable=true;
+
+ el.style.position="absolute";
+ el.style.left="100px";
+ el.style.top="100px";
+ el.style.fontSize="40px";
+ el.style.color="#000";
+ el.style.fontFamily="'Noto Sans Devanagari'";
+ el.style.cursor="move";
+
+ el.onclick=(e)=>{e.stopPropagation();select(el);};
+
+ el.onmousedown=(e)=>{
+  let x=e.clientX-el.offsetLeft;
+  let y=e.clientY-el.offsetTop;
+
+  document.onmousemove=(ev)=>{
+   el.style.left=(ev.clientX-x)+"px";
+   el.style.top=(ev.clientY-y)+"px";
+  };
+  document.onmouseup=()=>document.onmousemove=null;
+ };
+
+ el.oninput=(e)=>{
+  let txt=e.target.innerText;
+  if(!/[\u0900-\u097F]/.test(txt)){
+   e.target.innerText=toHindi(txt);
+  }
+ };
+
+ canvas.appendChild(el);
+ select(el);
+}
+
+function select(el){
+ document.querySelectorAll(".active").forEach(e=>e.classList.remove("active"));
+ el.classList.add("active");
+ active=el;
+}
+
+document.getElementById("font").onchange=e=>{
+ if(active) active.style.fontFamily=e.target.value;
+};
+
+document.getElementById("color").oninput=e=>{
+ if(active){
+  active.style.background="none";
+  active.style.color=e.target.value;
+ }
+};
+
+document.getElementById("size").oninput=e=>{
+ if(active) active.style.fontSize=e.target.value+"px";
+};
+
+function gradient(){
+ if(!active) return;
+ active.style.background="linear-gradient(red,blue)";
+ active.style.webkitBackgroundClip="text";
+ active.style.color="transparent";
+}
+
+function randomBg(){
+ fetch("https://source.unsplash.com/random/1200x800")
+ .then(res=>{
+  canvas.style.backgroundImage=`url(${res.url})`;
+  canvas.style.backgroundSize="cover";
+ });
+}
+
+document.getElementById("bgUpload").onchange=e=>{
+ let f=e.target.files[0];
+ if(f){
+  let url=URL.createObjectURL(f);
+  canvas.style.backgroundImage=`url(${url})`;
+  canvas.style.backgroundSize="cover";
+ }
+};
+
+document.getElementById("sticker").onchange=e=>{
+ let f=e.target.files[0];
+ if(f){
+  let img=document.createElement("img");
+  img.src=URL.createObjectURL(f);
+
+  img.style.position="absolute";
+  img.style.width="100px";
+  img.style.left="100px";
+  img.style.top="100px";
+
+  img.onmousedown=(e)=>{
+   let x=e.clientX-img.offsetLeft;
+   let y=e.clientY-img.offsetTop;
+
+   document.onmousemove=(ev)=>{
+    img.style.left=(ev.clientX-x)+"px";
+    img.style.top=(ev.clientY-y)+"px";
+   };
+   document.onmouseup=()=>document.onmousemove=null;
+  };
+
+  canvas.appendChild(img);
+ }
+};
+
+function exportImg(){
+ let c=document.createElement("canvas");
+ let ctx=c.getContext("2d");
+
+ c.width=canvas.clientWidth;
+ c.height=canvas.clientHeight;
+
+ ctx.fillStyle="#fff";
+ ctx.fillRect(0,0,c.width,c.height);
+
+ canvas.childNodes.forEach(el=>{
+  if(el.tagName==="DIV"){
+   ctx.font=el.style.fontSize+" "+el.style.fontFamily;
+   ctx.fillStyle=el.style.color||"#000";
+   ctx.fillText(el.innerText, el.offsetLeft, el.offsetTop+40);
+  } else if(el.tagName==="IMG"){
+   ctx.drawImage(el, el.offsetLeft, el.offsetTop,100,100);
+  }
+ });
+
+ let link=document.createElement("a");
+ link.download="design.png";
+ link.href=c.toDataURL();
+ link.click();
+}
+
+addText();
+</script>
+
+</body>
+</html>
