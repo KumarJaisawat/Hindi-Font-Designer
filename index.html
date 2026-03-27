@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GymInAI Hindi Designer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;700&family=Noto+Serif+Devanagari:wght@400;700&family=Kalam&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #000000; color: white; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
+        .canvas-container { background: #1a1a1a; border: 1px solid #333; position: relative; aspect-ratio: 1/1; margin: auto; }
+        .glass-panel { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,0.1); }
+        .gold-text { background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .font-card { background: #111; border: 1px solid #222; transition: 0.3s; }
+        .font-card:hover { border-color: #a855f7; transform: translateY(-2px); }
+        .engine-box { background: #1e293b; width: 100%; max-width: 500px; margin: auto; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="p-4 flex justify-between items-center border-b border-gray-800">
+        <h1 class="text-xl font-bold gold-text">GymInAI Hindi Designer</h1>
+        <button class="bg-purple-600 px-4 py-2 rounded-lg font-bold">Export</button>
+    </header>
+
+    <!-- Main Designer Canvas -->
+    <main class="flex-1 flex flex-col items-center justify-center p-4 space-y-6">
+        <div id="capture-area" class="canvas-container w-full max-w-md shadow-2xl flex items-center justify-center overflow-hidden">
+            <img id="bg-preview" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800" class="absolute inset-0 w-full h-full object-cover opacity-50">
+            <div id="text-layer" class="relative z-10 text-4xl font-bold text-center p-4" style="font-family: 'Noto Serif Devanagari'; color: #F59E0B; text-shadow: 4px 4px 0px #78350F;">
+                नमस्ते (Namaste)
+            </div>
+        </div>
+
+        <div class="glass-panel p-6 space-y-4 w-full max-w-md">
+            <div class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                <button class="min-w-[100px] p-3 rounded-xl bg-gray-800 border border-purple-500">Edit Text</button>
+                <button class="min-w-[100px] p-3 rounded-xl bg-gray-900">Fonts</button>
+                <button class="min-w-[100px] p-3 rounded-xl bg-gray-900">Colors</button>
+                <button class="min-w-[100px] p-3 rounded-xl bg-gray-900">Background</button>
+            </div>
+            <input type="text" id="text-input" placeholder="Type in English to Transliterate..." 
+                   class="w-full bg-gray-900 border border-gray-700 p-4 rounded-xl focus:border-purple-500 outline-none">
+        </div>
+
+        <!-- Font Styles Section -->
+        <section class="w-full max-w-md p-4 space-y-4">
+            <h2 class="text-2xl font-bold mb-4 gold-text">Text Styles</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="font-card p-4 rounded-2xl text-center">
+                    <div style="font-family: 'Noto Serif Devanagari'; font-weight: 700; color: #F59E0B; text-shadow: 2px 2px 0px #78350F;" class="text-2xl mb-2">नमस्ते</div>
+                    <p class="text-xs text-gray-500">Traditional</p>
+                </div>
+                <div class="font-card p-4 rounded-2xl text-center">
+                    <div style="font-family: 'Noto Serif Devanagari'; font-weight: 900; color: #EC4899; text-shadow: 2px 2px 0px #831843;" class="text-2xl mb-2">शायरी</div>
+                    <p class="text-xs text-gray-500">Decorative</p>
+                </div>
+                <div class="font-card p-4 rounded-2xl text-center">
+                    <div style="font-family: 'Kalam'; color: #3B82F6;" class="text-2xl mb-2">कला</div>
+                    <p class="text-xs text-gray-500">Brush</p>
+                </div>
+                <div class="font-card p-4 rounded-2xl text-center">
+                    <div style="font-family: sans-serif; color: #4ADE80; text-shadow: 0 0 10px #22c55e;" class="text-2xl mb-2">जोश</div>
+                    <p class="text-xs text-gray-500">Graffiti</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transliteration Engine -->
+        <section class="w-full max-w-md p-6 mb-6">
+            <div class="engine-box p-8 rounded-3xl shadow-2xl border border-slate-700">
+                <h3 class="text-xl font-bold mb-4 text-purple-400">Hindi Transliteration Engine</h3>
+                <p class="text-sm text-slate-400 mb-6">Real-time English to Hindi conversion (No API needed).</p>
+                
+                <label class="block text-xs uppercase tracking-widest text-slate-500 mb-2">English Input</label>
+                <input type="text" id="engInput" placeholder="e.g., namaste" class="w-full bg-slate-900 p-4 rounded-xl mb-6 outline-none border border-transparent focus:border-purple-500">
+                
+                <label class="block text-xs uppercase tracking-widest text-slate-500 mb-2">Hindi Output</label>
+                <div id="hinOutput" class="w-full bg-slate-800 p-6 rounded-xl text-3xl font-serif min-h-[80px] flex items-center justify-center text-center">
+                    ---
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Designer Canvas Text Update
+        const input = document.getElementById('text-input');
+        const display = document.getElementById('text-layer');
+        input.addEventListener('input', (e) => {
+            display.innerText = e.target.value || "नमस्ते";
+        });
+
+        // Transliteration Engine Logic (Simplified)
+        const CONSONANTS = {'k': 'क', 'kh': 'ख', 'g': 'ग', 'n': 'न', 'm': 'म', 't': 'त', 's': 'स'};
+        const engInput = document.getElementById('engInput');
+        const hinOutput = document.getElementById('hinOutput');
+        engInput.addEventListener('input', (e) => {
+            let val = e.target.value.toLowerCase();
+            let result = "";
+            for(let char of val) { result += CONSONANTS[char] || char; }
+            hinOutput.innerText = result || "---";
+        });
+    </script>
+</body>
+</html>
