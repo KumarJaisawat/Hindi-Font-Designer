@@ -1,167 +1,221 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hindi Font Designer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Noto+Serif+Devanagari:wght@400;700&family=Kalam:wght@400;700&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Noto+Serif+Devanagari:wght@400;700&family=Kalam:wght@400;700&family=Poppins:wght@400;700&family=Playfair+Display:wght@400;700&family=Lobster&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #111827; color: white; overflow: hidden; height: 100vh; }
-        #canvas-container { background-image: radial-gradient(#374151 1px, transparent 1px); background-size: 20px 20px; }
-        .layer-active { outline: 2px solid #8b5cf6; }
-        .handle { width: 12px; height: 12px; background: #8b5cf6; border-radius: 50%; position: absolute; }
-        /* Ad Banner Style */
-        .ad-banner { position: fixed; bottom: 0; left: 0; width: 100%; background: #f3f4f6; color: #6b7280; text-align: center; padding: 5px; font-size: 10px; z-index: 1000; }
+        body { background-color: #111827; color: white; overflow: hidden; height: 100vh; font-family: 'Poppins', sans-serif; }
+        .canvas-area { background-image: radial-gradient(#374151 1px, transparent 1px); background-size: 20px 20px; }
+        .layer-active { outline: 2px solid #8b5cf6; border-radius: 4px; }
+        .ad-banner { position: fixed; bottom: 0; left: 0; width: 100%; background: #f0f0f0; color: #666; text-align: center; padding: 10px; border-top: 2px solid #ccc; z-index: 9999; font-size: 12px; }
+        input[type="range"] { accent-color: #8b5cf6; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="flex h-full">
-        <aside class="w-72 bg-gray-900 border-r border-purple-500/30 p-4 overflow-y-auto pb-24">
-            <h2 class="text-xl font-bold mb-6 text-purple-400">Editor</h2>
+    <div class="flex h-screen pb-16">
+        <aside class="w-80 bg-gray-900/90 backdrop-blur-lg border-r border-purple-500/30 p-4 overflow-y-auto custom-scrollbar">
+            <h2 class="text-xl font-bold mb-6 text-purple-400 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                Editor
+            </h2>
             
             <div class="space-y-6">
                 <div>
-                    <label class="block text-sm font-medium mb-2">Text Content</label>
-                    <textarea id="textInput" class="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white" placeholder="Type in English to transliterate...">नमस्ते</textarea>
+                    <label class="block text-sm font-medium text-purple-200 mb-2">Text Content</label>
+                    <textarea id="textInput" class="w-full bg-gray-800 border border-purple-500/30 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all" rows="3" placeholder="Type in English for Hindi..."></textarea>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium mb-2">Font Family</label>
-                    <select id="fontFamily" class="w-full bg-gray-800 border border-gray-700 rounded p-2">
-                        <option value="'Noto Serif Devanagari', serif">Noto Serif Hindi</option>
-                        <option value="'Noto Sans Devanagari', sans-serif">Noto Sans Hindi</option>
+                    <label class="block text-sm font-medium text-purple-200 mb-2">Font Style</label>
+                    <select id="fontFamily" class="w-full bg-gray-800 border border-purple-500/30 rounded-lg p-2 text-white outline-none">
+                        <option value="'Noto Serif Devanagari', serif">Noto Serif (Traditional)</option>
+                        <option value="'Noto Sans Devanagari', sans-serif">Noto Sans (Modern)</option>
                         <option value="'Kalam', cursive">Kalam (Handwriting)</option>
-                        <option value="'Poppins', sans-serif">Poppins</option>
+                        <option value="'Playfair Display', serif">Playfair Display</option>
+                        <option value="'Lobster', display">Lobster</option>
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium mb-2">Text Color</label>
-                    <input type="color" id="textColor" value="#7c3aed" class="w-full h-10 rounded">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-purple-200 mb-2">Color</label>
+                        <input type="color" id="textColor" value="#7c3aed" class="w-full h-10 rounded-lg cursor-pointer bg-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-purple-200 mb-2">Size</label>
+                        <input type="number" id="fontSizeNum" value="48" class="w-full bg-gray-800 border border-purple-500/30 rounded-lg p-2 text-white">
+                    </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium mb-2">Font Size</label>
-                    <input type="range" id="fontSize" min="10" max="200" value="48" class="w-full">
+                    <label class="block text-sm font-medium text-purple-200 mb-2">Font Size Slider</label>
+                    <input type="range" id="fontSize" min="12" max="150" value="48" class="w-full">
                 </div>
 
-                <button id="addLayer" class="w-full bg-purple-600 hover:bg-purple-700 py-2 rounded font-bold transition">Add New Text</button>
+                <div>
+                    <label class="block text-sm font-medium text-purple-200 mb-3">Quick Presets</label>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="applyPreset('#fbbf24', '0 0 30px rgba(251, 191, 36, 0.8)')" class="px-3 py-1 bg-yellow-600 rounded-md text-xs font-bold">Festival Glow</button>
+                        <button onclick="applyPreset('#dc2626', '4px 4px 0px #000')" class="px-3 py-1 bg-red-600 rounded-md text-xs font-bold">Bold Poster</button>
+                        <button onclick="applyPreset('#7c3aed', '2px 2px 8px rgba(0,0,0,0.3)')" class="px-3 py-1 bg-purple-600 rounded-md text-xs font-bold">Elegant</button>
+                    </div>
+                </div>
+
+                <button id="addLayer" class="w-full bg-purple-600 hover:bg-purple-700 py-3 rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                    Add New Layer
+                </button>
                 
                 <div>
-                    <label class="block text-sm font-medium mb-2">Background Image</label>
-                    <input type="file" id="bgUpload" accept="image/*" class="text-xs">
+                    <label class="block text-sm font-medium text-purple-200 mb-2">Background Image</label>
+                    <input type="file" id="bgUpload" accept="image/*" class="text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700">
                 </div>
             </div>
         </aside>
 
-        <main class="flex-1 relative overflow-hidden" id="canvas-container">
-            <div id="artboard" class="absolute bg-white shadow-2xl" style="width: 800px; height: 600px; left: 50%; top: 50%; transform: translate(-50%, -50%);">
+        <main class="flex-1 relative canvas-area flex items-center justify-center p-8">
+            <div id="artboard" class="relative bg-white shadow-2xl overflow-hidden" style="width: 800px; height: 600px;">
                 </div>
         </main>
     </div>
 
-    <div class="fixed bottom-10 left-72 right-0 flex justify-center gap-4 p-4 z-50">
-        <button onclick="exportImage('png')" class="bg-blue-600 px-6 py-2 rounded-full font-bold shadow-lg">Export PNG</button>
-        <button onclick="exportImage('jpg')" class="bg-green-600 px-6 py-2 rounded-full font-bold shadow-lg">Export JPG</button>
+    <div class="fixed bottom-12 left-80 right-0 flex justify-center gap-4 p-4 z-50">
+        <button onclick="exportDesign('png')" class="bg-purple-600 hover:bg-purple-700 px-8 py-3 rounded-full font-bold shadow-xl transition-transform active:scale-95 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            Export PNG
+        </button>
+        <button onclick="exportDesign('jpeg')" class="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-full font-bold shadow-xl transition-transform active:scale-95">Export JPG</button>
     </div>
 
     <div class="ad-banner">
-        Advertisement Space | AdMob: ca-app-pub-9698100648606421/4117505950
+        <span>Advertisement Space</span><br>
+        <small>(AdMob Banner ID: ca-app-pub-9698100648606421/4117505950)</small>
     </div>
 
     <script>
-        // Transliteration Engine Logic
-        const VOWELS = {'a': 'ा', 'A': 'ा', 'i': 'ि', 'I': 'ी', 'u': 'ु', 'U': 'ू', 'e': 'े', 'ai': 'ै', 'o': 'ो', 'au': 'ौ'};
-        const CONSONANTS = {'k': 'क', 'kh': 'ख', 'g': 'ग', 'gh': 'घ', 'ch': 'च', 'chh': 'छ', 'j': 'ज', 'jh': 'झ', 't': 'त', 'th': 'थ', 'd': 'द', 'dh': 'ध', 'n': 'न', 'p': 'प', 'ph': 'फ', 'b': 'ब', 'bh': 'भ', 'm': 'म', 'y': 'य', 'r': 'र', 'l': 'ल', 'v': 'व', 's': 'स', 'h': 'ह'};
+        // Transliteration Engine
+        const CONSONANTS = {'k':'क','kh':'ख','g':'ग','gh':'घ','ch':'च','chh':'छ','j':'ज','jh':'झ','t':'त','th':'थ','d':'द','dh':'ध','n':'न','p':'प','ph':'फ','b':'ब','bh':'भ','m':'म','y':'य','r':'र','l':'ल','v':'व','s':'स','h':'ह','sh':'श'};
+        const VOWELS = {'a':'ा','i':'ि','I':'ी','u':'ु','U':'ू','e':'े','ai':'ै','o':'ो','au':'ौ'};
 
         function transliterate(text) {
-            let result = '';
-            let words = text.split(' ');
-            return words.map(word => {
-                let out = '';
+            return text.split(' ').map(word => {
+                let res = '';
                 for(let i=0; i<word.length; i++) {
-                    let char = word[i].toLowerCase();
+                    let c = word[i].toLowerCase();
                     let next = word[i+1] ? word[i+1].toLowerCase() : '';
-                    let duo = char + next;
-                    if(CONSONANTS[duo]) { out += CONSONANTS[duo]; i++; }
-                    else if(CONSONANTS[char]) { out += CONSONANTS[char]; }
-                    else if(VOWELS[char]) { out += VOWELS[char]; }
-                    else { out += char; }
+                    if(CONSONANTS[c+next]) { res += CONSONANTS[c+next]; i++; }
+                    else if(CONSONANTS[c]) { res += CONSONANTS[c]; }
+                    else if(VOWELS[c]) { res += VOWELS[c]; }
+                    else { res += word[i]; }
                 }
-                return out;
+                return res;
             }).join(' ');
         }
 
-        // Canvas State
+        // App Logic
         let layers = [];
-        let activeLayerId = null;
+        let activeId = null;
         const artboard = document.getElementById('artboard');
 
-        function createLayer(text = 'नमस्ते') {
+        function addLayer(text = 'नमस्ते') {
             const id = Date.now();
-            const layer = {
-                id,
-                text,
-                x: 100, y: 100,
-                fontSize: 48,
-                color: '#7c3aed',
-                fontFamily: "'Noto Serif Devanagari', serif"
-            };
-            layers.push(layer);
+            layers.push({ id, text, x: 50, y: 50, size: 48, color: '#7c3aed', font: "'Noto Serif Devanagari', serif", shadow: '2px 2px 4px rgba(0,0,0,0.3)' });
+            activeId = id;
+            updateUI(layers.find(l => l.id === id));
             render();
         }
 
         function render() {
-            artboard.innerHTML = '';
-            layers.forEach(layer => {
-                const el = document.createElement('div');
-                el.className = `absolute cursor-move select-none ${activeLayerId === layer.id ? 'layer-active' : ''}`;
-                el.style.left = layer.x + 'px';
-                el.style.top = layer.y + 'px';
-                el.style.fontSize = layer.fontSize + 'px';
-                el.style.color = layer.color;
-                el.style.fontFamily = layer.fontFamily;
-                el.innerText = layer.text;
-                
-                el.onmousedown = (e) => {
-                    activeLayerId = layer.id;
-                    let startX = e.clientX - layer.x;
-                    let startY = e.clientY - layer.y;
-                    
-                    document.onmousemove = (moveE) => {
-                        layer.x = moveE.clientX - startX;
-                        layer.y = moveE.clientY - startY;
+            artboard.querySelectorAll('.layer').forEach(l => l.remove());
+            layers.forEach(l => {
+                const div = document.createElement('div');
+                div.className = `layer absolute cursor-move whitespace-nowrap p-2 ${activeId === l.id ? 'layer-active' : ''}`;
+                div.style.left = l.x + 'px';
+                div.style.top = l.y + 'px';
+                div.style.fontSize = l.size + 'px';
+                div.style.color = l.color;
+                div.style.fontFamily = l.font;
+                div.style.textShadow = l.shadow;
+                div.innerText = l.text;
+
+                div.onmousedown = (e) => {
+                    activeId = l.id;
+                    updateUI(l);
+                    let startX = e.clientX - l.x;
+                    let startY = e.clientY - l.y;
+                    document.onmousemove = (me) => {
+                        l.x = me.clientX - startX;
+                        l.y = me.clientY - startY;
                         render();
                     };
-                    document.onmouseup = () => { document.onmousemove = null; };
+                    document.onmouseup = () => document.onmousemove = null;
                     render();
                 };
-                artboard.appendChild(el);
+                artboard.appendChild(div);
             });
         }
 
-        // UI Listeners
+        function updateUI(l) {
+            document.getElementById('textInput').value = l.text;
+            document.getElementById('fontSize').value = l.size;
+            document.getElementById('fontSizeNum').value = l.size;
+            document.getElementById('textColor').value = l.color;
+            document.getElementById('fontFamily').value = l.font;
+        }
+
+        // Event Listeners
         document.getElementById('textInput').oninput = (e) => {
-            if(activeLayerId) {
-                const layer = layers.find(l => l.id === activeLayerId);
-                layer.text = transliterate(e.target.value);
-                render();
-            }
+            if(!activeId) return;
+            layers.find(l => l.id === activeId).text = transliterate(e.target.value);
+            render();
         };
 
         document.getElementById('fontSize').oninput = (e) => {
-            if(activeLayerId) {
-                layers.find(l => l.id === activeLayerId).fontSize = e.target.value;
-                render();
-            }
+            if(!activeId) return;
+            layers.find(l => l.id === activeId).size = e.target.value;
+            document.getElementById('fontSizeNum').value = e.target.value;
+            render();
         };
 
-        document.getElementById('addLayer').onclick = () => createLayer();
+        document.getElementById('textColor').oninput = (e) => {
+            if(!activeId) return;
+            layers.find(l => l.id === activeId).color = e.target.value;
+            render();
+        };
+
+        document.getElementById('fontFamily').onchange = (e) => {
+            if(!activeId) return;
+            layers.find(l => l.id === activeId).font = e.target.value;
+            render();
+        };
+
+        document.getElementById('bgUpload').onchange = (e) => {
+            const reader = new FileReader();
+            reader.onload = (re) => artboard.style.backgroundImage = `url(${re.target.result})`;
+            reader.readAsDataURL(e.target.files[0]);
+            artboard.style.backgroundSize = 'cover';
+        };
+
+        document.getElementById('addLayer').onclick = () => addLayer();
+
+        function applyPreset(color, shadow) {
+            if(!activeId) return;
+            const l = layers.find(l => l.id === activeId);
+            l.color = color;
+            l.shadow = shadow;
+            updateUI(l);
+            render();
+        }
 
         // Export Logic
-        async function exportImage(format) {
+        function exportDesign(format) {
             const canvas = document.createElement('canvas');
             canvas.width = 800; canvas.height = 600;
             const ctx = canvas.getContext('2d');
@@ -169,19 +223,21 @@
             ctx.fillRect(0,0,800,600);
             
             layers.forEach(l => {
-                ctx.font = `${l.fontSize}px ${l.fontFamily}`;
+                ctx.font = `${l.size}px ${l.font}`;
                 ctx.fillStyle = l.color;
-                ctx.fillText(l.text, l.x, l.y + parseInt(l.fontSize));
+                ctx.shadowColor = l.shadow.split(' ').pop();
+                ctx.shadowBlur = 4;
+                ctx.fillText(l.text, l.x, l.y + parseInt(l.size));
             });
 
             const link = document.createElement('a');
-            link.download = `design.${format}`;
+            link.download = `hindi-font-design.${format}`;
             link.href = canvas.toDataURL(`image/${format}`);
             link.click();
         }
 
         // Initialize
-        createLayer();
+        addLayer();
     </script>
 </body>
-</html> 
+</html>
