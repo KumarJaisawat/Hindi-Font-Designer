@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hindi Font Designer Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;900&family=Noto+Serif+Devanagari:wght@400;900&family=Kalam&family=Playfair+Display:wght@700&family=Lobster&family=Rozha+One&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { --primary: #8b5cf6; --bg: #0f172a; }
+        body { background-color: var(--bg); color: white; height: 100vh; overflow: hidden; font-family: 'Poppins', sans-serif; }
+        .canvas-container { background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 20px 20px; }
+        #artboard { width: 800px; height: 600px; background: white; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); overflow: hidden; }
+        .layer { position: absolute; cursor: move; white-space: nowrap; padding: 10px; user-select: none; }
+        .layer-active { outline: 2px dashed var(--primary); background: rgba(139, 92, 246, 0.1); }
+        .ad-banner { position: fixed; bottom: 0; left: 0; width: 100%; background: #f8fafc; color: #64748b; text-align: center; padding: 8px; font-size: 11px; border-top: 1px solid #e2e8f0; z-index: 100; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body>
+
+    <div class="flex h-full pb-12">
+        <aside class="w-80 glass border-r border-white/10 p-5 overflow-y-auto custom-scrollbar">
+            <h1 class="text-2xl font-black mb-6 bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">HINDI DESIGNER</h1>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Text Content</label>
+                    <textarea id="textInput" class="w-full bg-slate-800 border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-500 outline-none" rows="2" placeholder="Type here..."></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1">Font Family</label>
+                        <select id="fontFamily" class="w-full bg-slate-800 rounded p-2 text-sm">
+                            <option value="'Noto Serif Devanagari', serif">Traditional</option>
+                            <option value="'Kalam', cursive">Handwriting</option>
+                            <option value="'Rozha One', serif">Bold Rozha</option>
+                            <option value="'Lobster', cursive">Lobster</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1">Color</label>
+                        <input type="color" id="textColor" value="#8b5cf6" class="w-full h-9 rounded cursor-pointer bg-transparent">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between mb-1"><label class="text-xs font-bold text-gray-400">Size</label><span id="sizeVal" class="text-xs">48px</span></div>
+                    <input type="range" id="fontSize" min="20" max="200" value="48" class="w-full accent-purple-500">
+                </div>
+
+                <div class="pt-4 border-t border-white/10">
+                    <button onclick="addLayer()" class="w-full bg-purple-600 hover:bg-purple-700 py-3 rounded-xl font-bold transition shadow-lg shadow-purple-500/20">Add Text Layer</button>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-2">Background Image</label>
+                    <input type="file" id="bgUpload" accept="image/*" class="text-xs block w-full text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100">
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 relative canvas-container flex items-center justify-center">
+            <div id="artboard">
+                </div>
+            
+            <div class="absolute bottom-10 flex gap-4">
+                <button onclick="exportDesign('png')" class="bg-white text-black px-8 py-3 rounded-full font-bold hover:bg-gray-200 transition transform active:scale-95 shadow-xl">Export PNG</button>
+                <button onclick="exportDesign('jpeg')" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-700 transition transform active:scale-95 shadow-xl">Export JPG</button>
+            </div>
+        </main>
+    </div>
+
+    <div class="ad-banner">
+        <b>Ad Space</b> | ID: ca-app-pub-9698100648606421/4117505950
+    </div>
+
+    <script>
+        // Transliteration Engine
+        const VOWELS = {'a':'ा','i':'ि','I':'ी','u':'ु','U':'ू','e':'े','ai':'ै','o':'ो','au':'ौ'};
+        const CONSONANTS = {'k':'क','kh':'ख','g':'ग','gh':'घ','ch':'च','chh':'छ','j':'ज','jh':'झ','t':'त','th':'थ','d':'द','dh':'ध','n':'न','p':'प','ph':'फ','b':'ब','bh':'भ','m':'म','y':'य','r':'र','l':'ल','v':'व','s':'स','h':'ह','sh':'श'};
+
+        function transliterate(text) {
+            return text.split(' ').map(word => {
+                let out = '';
+                for(let i=0; i<word.length; i++) {
+                    let c = word[i].toLowerCase();
+                    let next = word[i+1] ? word[i+1].toLowerCase() : '';
+                    if(CONSONANTS[c+next]) { out += CONSONANTS[c+next]; i++; }
+                    else if(CONSONANTS[c]) { out += CONSONANTS[c]; }
+                    else if(VOWELS[c]) { out += VOWELS[c]; }
+                    else { out += word[i]; }
+                }
+                return out;
+            }).join(' ');
+        }
+
+        // Logic & State Management
+        let layers = [];
+        let activeId = null;
+        const artboard = document.getElementById('artboard');
+
+        function addLayer(text = 'नमस्ते') {
+            const id = Date.now();
+            layers.push({ id, text, x: 100, y: 100, size: 50, color: '#8b5cf6', font: "'Noto Serif Devanagari', serif" });
+            activeId = id;
+            render();
+        }
+
+        function render() {
+            // Memory Management: Remove old elements but keep state
+            artboard.querySelectorAll('.layer').forEach(el => el.remove());
+            
+            layers.forEach(l => {
+                const div = document.createElement('div');
+                div.className = `layer ${activeId === l.id ? 'layer-active' : ''}`;
+                div.style.left = l.x + 'px';
+                div.style.top = l.y + 'px';
+                div.style.fontSize = l.size + 'px';
+                div.style.color = l.color;
+                div.style.fontFamily = l.font;
+                div.innerText = l.text;
+
+                div.onmousedown = (e) => {
+                    activeId = l.id;
+                    updateToolbar(l);
+                    let startX = e.clientX - l.x;
+                    let startY = e.clientY - l.y;
+                    
+                    document.onmousemove = (moveE) => {
+                        l.x = moveE.clientX - startX;
+                        l.y = moveE.clientY - startY;
+                        div.style.left = l.x + 'px';
+                        div.style.top = l.y + 'px';
+                    };
+                    document.onmouseup = () => { document.onmousemove = null; render(); };
+                };
+                artboard.appendChild(div);
+            });
+        }
+
+        function updateToolbar(l) {
+            document.getElementById('textInput').value = l.text;
+            document.getElementById('fontSize').value = l.size;
+            document.getElementById('sizeVal').innerText = l.size + 'px';
+            document.getElementById('textColor').value = l.color;
+            document.getElementById('fontFamily').value = l.font;
+        }
+
+        // Listeners
+        document.getElementById('textInput').oninput = (e) => {
+            if(!activeId) return;
+            layers.find(l => l.id === activeId).text = transliterate(e.target.value);
+            render();
+        };
+
+        document.getElementById('fontSize').oninput = (e) => {
+            if(!activeId) return;
+            const size = e.target.value;
+            layers.find(l => l.id === activeId).size = size;
+            document.getElementById('sizeVal').innerText = size + 'px';
+            render();
+        };
+
+        document.getElementById('textColor').oninput = (e) => {
+            if(!activeId) return;
+            layers.find(l => l.id === activeId).color = e.target.value;
+            render();
+        };
+
+        document.getElementById('bgUpload').onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                // Object URL is faster than Base64
+                const url = URL.createObjectURL(file);
+                artboard.style.backgroundImage = `url(${url})`;
+                artboard.style.backgroundSize = 'cover';
+                artboard.style.backgroundPosition = 'center';
+            }
+        };
+
+        // Export Logic
+        function exportDesign(format) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800; canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+            
+            // Draw background color/image
+            ctx.fillStyle = "white";
+            ctx.fillRect(0,0,800,600);
+            
+            layers.forEach(l => {
+                ctx.font = `${l.size}px ${l.font}`;
+                ctx.fillStyle = l.color;
+                ctx.textBaseline = 'top';
+                ctx.fillText(l.text, l.x, l.y);
+            });
+
+            const link = document.createElement('a');
+            link.download = `hindi-design-${Date.now()}.${format}`;
+            link.href = canvas.toDataURL(`image/${format === 'jpeg' ? 'jpeg' : 'png'}`);
+            link.click();
+        }
+
+        // Init
+        addLayer();
+    </script>
+</body>
+</html>
